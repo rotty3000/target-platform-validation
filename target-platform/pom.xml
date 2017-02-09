@@ -59,7 +59,6 @@
                     <bndruns>
                         <bndrun>tp-validation.bndrun</bndrun>
                     </bndruns>
-                    <targetDir>.</targetDir>
                 </configuration>
                 <executions>
                     <execution>
