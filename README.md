@@ -6,7 +6,7 @@
 
 # Creating the Distro Jar
 
-First we need a distro jar from an officical Liferay deployment.  Currently in this project I have included both 7.0.2 and 7.10.1  But if you have a more recent Liferay deployment you will need to follow the procedure below to generate a new distro jar.
+First we need a distro jar from an official Liferay deployment.  Currently in this project I have included both 7.0.2 and 7.10.1  But if you have a more recent Liferay deployment you will need to follow the procedure below to generate a new distro jar.
 
 **Note:** The goal of the distro is to only include what’s provided by Liferay releases including fix packs.
 
@@ -22,11 +22,13 @@ First we need a distro jar from an officical Liferay deployment.  Currently in t
 
 4. Create the distro bundle jar with following command
 
- **java -jar biz.aQute.bnd.jar remote distro -o com.liferay.distro-7.10.1.jar com.liferay.distro 7.10.1**
+ ```
+ java -jar biz.aQute.bnd.jar remote distro -o com.liferay.distro-7.10.1.jar com.liferay.distro 7.10.1
+ ```
  It may be useful to append the Liferay fixpack version to the distro as well. You could use a qualifier for that purpose.
- E.g. 7.10.1.FP2
+ E.g. `7.10.1.FP2`
 
-# Why does you need the distro?
+# Why do you need the distro?
 
 The distro bundle contains all the metadata about the Liferay deployment, including all exported packages, and other capabilities available from the provided bundles.  We need to use that information during the build to validate our bundles against it.  This way, we will be performing the same OSGi dependency resolution that happens when a bundle is installed into an OSGi framework, but now it will happen during a normal build lifecycle.  From technical standpoint, we will need to invoke the OSGi Resolver, to have it look at the bundles we are building and resolve their requirements against a set of known capabilities (a distro) and give us the resolution, success or failure.  If it finds failure, the resolver will tell you what failed and why, thus you will know it at build time instead of deploy, thereby saving you cycles.
 
@@ -48,75 +50,75 @@ We are assuming that you are already using the bnd-maven-plugin to build your OS
 
 2. Add the following bnd maven plugins as follows:
 
-```
-<plugin>
-  <groupId>biz.aQute.bnd</groupId>
-  <artifactId>bnd-indexer-maven-plugin</artifactId>
-  <version>3.4.0-SNAPSHOT</version>
-  <configuration>
-    <includeJar>true</includeJar>
-    <localURLs>REQUIRED</localURLs>
-  </configuration>
-  <executions>
-    <execution>
-      <id>index</id>
-      <goals>
-        <goal>index</goal>
-      </goals>
+ ```
+ <plugin>
+   <groupId>biz.aQute.bnd</groupId>
+   <artifactId>bnd-indexer-maven-plugin</artifactId>
+   <version>3.4.0-SNAPSHOT</version>
+   <configuration>
+     <includeJar>true</includeJar>
+    	<localURLs>REQUIRED</localURLs>
+   </configuration>
+   <executions>
+   	 <execution>
+    		 <id>index</id>
+    		 <goals>
+    			 <goal>index</goal>
+    		 </goals>
     	</execution>
-  </executions>
-</plugin>
-<plugin>
-  <groupId>biz.aQute.bnd</groupId>
-  <artifactId>bnd-resolver-maven-plugin</artifactId>
-  <version>3.4.0-SNAPSHOT</version>
-  <configuration>
-    <failOnChanges>false</failOnChanges>
-    <bndruns>
-      <bndrun>distro-validation.bndrun</bndrun>
-    </bndruns>
-  </configuration>
-  <executions>
-    <execution>
-      <id>resolve</id>
-      <phase>verify</phase>
-      <goals>
-        <goal>resolve</goal>
-      </goals>
-    </execution>
-  </executions>
-</plugin>
+   </executions>
+ </plugin>
+ <plugin>
+   <groupId>biz.aQute.bnd</groupId>
+   <artifactId>bnd-resolver-maven-plugin</artifactId>
+   <version>3.4.0-SNAPSHOT</version>
+   <configuration>
+     <failOnChanges>false</failOnChanges>
+     <bndruns>
+       <bndrun>distro-validation.bndrun</bndrun>
+     </bndruns>
+   </configuration>
+   <executions>
+ 	   <execution>
+ 	 	   <id>resolve</id>
+       <phase>verify</phase>
+ 	 	   <goals>
+ 		  	   <goal>resolve</goal>
+ 		    </goals>
+     </execution>
+   </executions>
+ </plugin>
  ```
 
 3. Include in this project’s pom file the top level project dependencies you wish to validate.
 
 ```
 <dependencies>
-  <dependency>
-    <groupId>com.liferay</groupId>
-    <artifactId>demo-api</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-  </dependency>
-  <dependency>
-    <groupId>com.liferay</groupId>
-    <artifactId>demo-portlet</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-  </dependency>
-  <dependency>
-    <groupId>com.liferay</groupId>
-    <artifactId>demo-rule</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-  </dependency>
-  <dependency>
-    <groupId>com.liferay</groupId>
-    <artifactId>demo-fragment</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-  </dependency>
-  <dependency>
-    <groupId>com.liferay</groupId>
-    <artifactId>demo-impl</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-  </dependency>
+	<dependency>
+		<groupId>com.liferay</groupId>
+		<artifactId>demo-api</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</dependency>
+	<dependency>
+		<groupId>com.liferay</groupId>
+		<artifactId>demo-portlet</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</dependency>
+	<dependency>
+		<groupId>com.liferay</groupId>
+		<artifactId>demo-rule</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</dependency>
+	<dependency>
+		<groupId>com.liferay</groupId>
+		<artifactId>demo-fragment</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</dependency>
+	<dependency>
+		<groupId>com.liferay</groupId>
+		<artifactId>demo-impl</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</dependency>
 </dependencies>
 ```
 
@@ -141,6 +143,8 @@ We are assuming that you are already using the bnd-maven-plugin to build your OS
 
 6. Finally, execute the maven verify lifecycle.
  `mvn clean verify`
+
+
 
 # Demo
 
@@ -174,7 +178,7 @@ Suppose that you have a bundle that has some dependency that is configued in the
 2. run the build `mvn clean verify`
  You should see the following error
  ```
-Unable to resolve com.liferay.demo.rule version=1.0.0.201703132112: missing requirement com.liferay.content.targeting.anonymous.users.model; version=[2.0.0,3.0.0)]
+ [ERROR] Failed to execute goal biz.aQute.bnd:bnd-resolver-maven-plugin:3.4.0-SNAPSHOT:resolve (resolve) on project distro-validation: Unable to resolve <<INITIAL>> version=null: missing requirement com.liferay.demo.rule [caused by: Unable to resolve com.liferay.demo.rule version=1.0.0.201703132112: missing requirement com.liferay.content.targeting.anonymous.users.model; version=[2.0.0,3.0.0)]
  ```
  This means that even though we are compiling and building the demo-rule bundle no problem (we have dependencies declared in pom) in our target runtime distro, those capabilities for those package imports aren't there (the audience targeting bundles were deploy when we built our distro-7.0.2.jar) thus we get that error.
 
@@ -184,8 +188,8 @@ Unable to resolve com.liferay.demo.rule version=1.0.0.201703132112: missing requ
 
 So in many of your DS components you are likely adding references to services like
 ```
-@Reference DemoApi demoApi;
 @Reference UserLocalService;
+@Reference MyApi myApi;
 ```
 
 This resolution process can now check for missing service dependencies and alert you that there is no available implementation that will make that API available.
@@ -197,10 +201,6 @@ To see this in action do the following:
 2. Run the build `mvn clean verify`
 
 Notice that you get the following error.
-```
-Unable to resolve com.liferay.demo.portlet version=1.0.0.201703231910: missing requirement objectClass=com.liferay.demo.api.DemoApi
-```
-This means that the OSGi resolver was not able to find any capability that provided the service interface of DemoApi.
 
 3. Now put the `@Component` back, so that DemoAPi has at least one implementor
 
@@ -219,18 +219,19 @@ If you have a OSGi fragment, you likely want to ensure that the Fragment-Host th
  ```
 2. Rerun the build `mvn clean verify`  You will see the following errors:
  ```
-Unable to resolve com.liferay.demo.fragment version=1.0.0.201703132212: missing requirement com.liferay.bookmarks.web; version=[1.0.14,1.0.15)]
+ [ERROR] Failed to execute goal biz.aQute.bnd:bnd-resolver-maven-plugin:3.4.0-SNAPSHOT:resolve (resolve) on project distro-validation: Unable to resolve <<INITIAL>> version=null: missing requirement com.liferay.demo.fragment [caused by: Unable to resolve com.liferay.demo.fragment version=1.0.0.201703132212: missing requirement com.liferay.bookmarks.web; version=[1.0.14,1.0.15)]
  ```
 
  This means that you are depending on a newer Fragment-Host that what is available in your distro `com.liferay.distro-7.0.2.jar`.
 
- But the fragment-host we want to bind to does exist, however it does exist in DXP 7.10.1 so that means it would be available if we were usng the `com.liferay.distro-7.10.1.jar`, so we need to update our distro accordingly.
+ But the fragment-host we want to bind to does exist, it is just in DXP distro `com.liferay.distro-7.10.1.jar`, so we need to update our distro
 
 3. Modify the [distro-validation/distro-validation.bndrun] file, edit the `-distro` command to the following:
  ```
  -distro: com.liferay.distro-7.10.1.jar;version=file
  ```
 4. Rerun the build and notice that there are now no errors.
+
 
 # Notes for consideration:
 * If the distro jar is published to a maven repo then the reference can be <bsn>;version=’[${version},)’
